@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from "react";
 import { Button } from "react-bootstrap";
-// import { database } from "../firebase";
 import  firebase from "firebase/app";
 import 'firebase/database'
 
