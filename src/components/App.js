@@ -1,21 +1,26 @@
 import React, { useEffect, useState } from "react";
 import { Button } from "react-bootstrap";
 import firebase from "firebase/app";
+import 'firebase/auth'
 import "firebase/database";
 import _ from "lodash";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import renderHtml from "react-render-html";
+import './styles.scss'
 
 function App() {
   useEffect(() => {
     const db = firebase.database();
-    console.log(db);
+
   });
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [posts, setPosts] = useState([]);
   const [posts1, setPosts1] = useState([]);
+  const [email, setEmail] = useState({});
+  const [password, setPassword] = useState({});
+  const [hasaccount,setAcount] = useState(false)
 
   useEffect(() => {
     firebase
@@ -24,7 +29,8 @@ function App() {
       .on("value", (snapshot) => {
         setPosts(snapshot.val());
       });
-  }, [firebase.database()]);
+
+  }, []);
   const getPosts = () => {
     firebase
       .database()
@@ -36,7 +42,7 @@ function App() {
     console.log(posts);
     let i = 0;
     let arr = [];
-    for (var key in posts) {
+    for (let key in posts) {
       arr[i] = posts[key];
       i++;
     }
@@ -47,9 +53,9 @@ function App() {
   const onHandleChange = (e) => {
      setBody(e)
   };
-  const onImputBodyChange = (e) => {
-    setBody(e.target.value);
-  };
+  // const onImputBodyChange = (e) => {
+  //   setBody(e.target.value);
+  // };
   const onHandleSubmit = (e) => {
     e.preventDefault();
     const post = {
@@ -60,9 +66,26 @@ function App() {
     setTitle("");
     setBody("");
   };
-
+  const   handleEmail = ({target : {value , id}}) => {
+    setEmail( {[id] : value})
+  }
+  const   handlePassword = ({target : {value , id}}) => {
+    setPassword( {[id] : value})
+  }
+  const  createAccount =()=>{
+    let em =(email.email)
+    let psw =(password.password)
+    // firebase.auth().createUserWithEmailAndPassword(em, psw).catch(err=>err)
+    firebase.auth().signInWithEmailAndPassword(email.email,password.password)
+        .then(response => setAcount(true))
+  }
   return (
     <div className="container">
+      <div className="login-block">
+        <input type="text" id='email' placeholder='email' onChange={handleEmail}/>
+        <input type="password" id='password' placeholder='password' onChange={handlePassword}/>
+        <input type="submit" onClick={createAccount}/>
+      </div>
       <form onSubmit={onHandleSubmit}>
         <div className="form-group">
           <input
@@ -87,8 +110,8 @@ function App() {
           Post
         </Button>
         <div>
-          {/*<h2>{title}</h2>*/}
-          {/*<h2>{posts.title}</h2>*/}
+          <h2>{email.email}</h2>
+          <h2>{password.password}</h2>
         </div>
       </form>
       <Button className="btn" onClick={getPosts}>
@@ -101,7 +124,7 @@ function App() {
           return (
             <div key={i}>
               <h2>{renderHtml(el.title)}</h2>
-              <p> {renderHtml(el.body)}</p>
+              <div>{renderHtml(el.body)}</div>
             </div>
           );
         })}
@@ -136,4 +159,4 @@ App.formats = [
   "code-block",
 ];
 
-export default App;
+export default App ;
